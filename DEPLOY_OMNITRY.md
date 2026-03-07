@@ -25,23 +25,24 @@ The easiest and cheapest way to deploy OmniTry to Replicate is by using **GitHub
 Inside the `predict.py` file in this folder, I have placed placeholder logic because OmniTry's specific `inference.py` API is complex. 
 - You will need to customize `predict.py` to match exactly how the `Kunbyte-AI/OmniTry` pipeline executes based on their documentation.
 
-### 3. Connect GitHub to Replicate
-1. Go to [Replicate.com](https://replicate.com) and log in.
-2. Go to **Dashboard** -> **Models** -> **Create a model**.
-3. Name your model (e.g., `omnitry-vton`), set it to Public or Private, and create it.
-4. On the model page, click **Settings** -> **GitHub integration**.
-5. Connect your GitHub account and select your `omnitry-replicate` repository.
-6. Click **Enable integration**.
+### 3. Connect GitHub to Replicate via Secrets
+Replicate does not build models automatically from GitHub anymore; it uses a **GitHub Action** that we just created for you (`.github/workflows/push.yml`).
+To give GitHub permission to push to your Replicate account:
+1. Go to your [GitHub Repository Settings](https://github.com/nutshellagency/omnitry-replicate/settings/secrets/actions).
+2. Click **New repository secret**.
+3. Name it exactly: `REPLICATE_API_TOKEN`
+4. Paste your Replicate API Token as the value and save.
 
 ### 4. Build and Monitor
-1. Make a small edit to any file in your repository (like adding a space to this README) and push it to  GitHub:
+1. Since I just created the Workflow file for you, you need to commit and push it back up to GitHub. Run this in your terminal:
    ```bash
-   git commit -am "Trigger Replicate Build"
+   git add .
+   git commit -m "Add GitHub Actions workflow for Replicate"
    git push
    ```
 2. Go to your repository on GitHub and click the **Actions** tab. You will see a workflow running!
-3. Replicate is now automatically downloading a Linux machine with GPUs, installing `torch`, `CUDA`, OpenCV, cloning the OmniTry source code, and downloading 28GB of weights.
-   *(This step will take 30-45 minutes the first time).*
+3. The GitHub worker is now downloading a Linux environment, installing Docker and Cog, cloning the OmniTry source code, downloading the 28GB weights, and pushing the final container to Replicate.
+   *(This step can take a while depending on network speeds).*
 
 ### 5. Finalize the Backend
 Once the GitHub Action finishes successfully, go back to your Replicate Model Page. It will say "Ready"!
