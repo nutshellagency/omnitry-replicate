@@ -34,7 +34,7 @@ Inside the `predict.py` file in this folder, I have placed placeholder logic bec
 6. Click **Enable integration**.
 
 ### 4. Build and Monitor
-1. Make a small edit to any file in your repository (like adding a space to this README) and push it to GitHub:
+1. Make a small edit to any file in your repository (like adding a space to this README) and push it to  GitHub:
    ```bash
    git commit -am "Trigger Replicate Build"
    git push
