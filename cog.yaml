@@ -12,6 +12,8 @@ build:
     - "safetensors"
     - "hf_transfer"
     - "huggingface_hub"
+    - "peft"
+    - "omegaconf"
   run:
     # Install dependencies required for OpenCV and model downloading
     - "apt-get update -y && apt-get install -y libgl1-mesa-glx libglib2.0-0 git wget"
