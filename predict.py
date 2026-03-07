@@ -5,7 +5,7 @@ from cog import BasePredictor, Input, Path
 from PIL import Image
 
 # Add the cloned OmniTry repository to the python path
-sys.path.append("/src")
+sys.path.append("/omnitry")
 
 class Predictor(BasePredictor):
     def setup(self):
@@ -14,7 +14,7 @@ class Predictor(BasePredictor):
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         
         # NOTE: This is where you initialize the OmniTry pipeline. 
-        # e.g., self.pipe = OmniTryPipeline.from_pretrained("/src/weights").to(self.device)
+        # e.g., self.pipe = OmniTryPipeline.from_pretrained("/omnitry/weights").to(self.device)
 
     def predict(
         self,

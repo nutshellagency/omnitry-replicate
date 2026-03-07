@@ -11,14 +11,15 @@ build:
     - "opencv-python-headless"
     - "safetensors"
     - "hf_transfer"
+    - "huggingface_hub"
   run:
     # Install dependencies required for OpenCV and model downloading
     - "apt-get update -y && apt-get install -y libgl1-mesa-glx libglib2.0-0 git wget"
     
-    # Clone the official OmniTry repository into the container
-    - "git clone https://github.com/Kunbyte-AI/OmniTry.git /src"
+    # Clone the official OmniTry repository into a safe directory
+    - "git clone https://github.com/Kunbyte-AI/OmniTry.git /omnitry"
     
-    # Download weights from HuggingFace
-    - "python script/download_weights.py"
+    # Download weights from HuggingFace inline (since local scripts aren't copied yet)
+    - "python -c \"import os; os.environ['HF_HUB_ENABLE_HF_TRANSFER']='1'; from huggingface_hub import snapshot_download; snapshot_download(repo_id='Kunbyte-AI/OmniTry', local_dir='/omnitry/weights')\""
 
 predict: "predict.py:Predictor"
