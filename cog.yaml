@@ -1,0 +1,24 @@
+build:
+  gpu: true
+  cuda: "12.1"
+  python_version: "3.10"
+  python_packages:
+    - "torch>=2.0.1"
+    - "torchvision>=0.15.2"
+    - "diffusers>=0.25.0"
+    - "transformers>=4.36.2"
+    - "accelerate>=0.26.1"
+    - "opencv-python-headless"
+    - "safetensors"
+    - "hf_transfer"
+  run:
+    # Install dependencies required for OpenCV and model downloading
+    - "apt-get update -y && apt-get install -y libgl1-mesa-glx libglib2.0-0 git wget"
+    
+    # Clone the official OmniTry repository into the container
+    - "git clone https://github.com/Kunbyte-AI/OmniTry.git /src"
+    
+    # Download weights from HuggingFace
+    - "python script/download_weights.py"
+
+predict: "predict.py:Predictor"
