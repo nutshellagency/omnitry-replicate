@@ -20,6 +20,6 @@ build:
     - "git clone https://github.com/Kunbyte-AI/OmniTry.git /omnitry"
     
     # Download weights from HuggingFace inline (since local scripts aren't copied yet)
-    - "python -c \"import os; os.environ['HF_HUB_ENABLE_HF_TRANSFER']='1'; from huggingface_hub import snapshot_download; snapshot_download(repo_id='Kunbyte-AI/OmniTry', local_dir='/omnitry/weights')\""
+    - "python -c \"import os; os.environ['HF_HUB_ENABLE_HF_TRANSFER']='1'; from huggingface_hub import snapshot_download; snapshot_download(repo_id='Kunbyte/OmniTry', local_dir='/omnitry/weights')\""
 
 predict: "predict.py:Predictor"
