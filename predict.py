@@ -62,7 +62,7 @@ class Predictor(BasePredictor):
         self.transformer = FluxTransformer2DModel.from_pretrained(f"{weights_root}/transformer").requires_grad_(False).to(dtype=self.weight_dtype)
         
         print("Initializing FluxFillPipeline...")
-        self.pipeline = FluxFillPipeline.from_pretrained(f"{weights_root}", transformer=self.transformer.eval(), torch_dtype=self.weight_dtype).to(self.device)
+        self.pipeline = FluxFillPipeline.from_pretrained(f"{weights_root}", transformer=self.transformer.eval(), torch_dtype=self.weight_dtype)
         
         # VRAM saving configurations
         self.pipeline.enable_model_cpu_offload()
