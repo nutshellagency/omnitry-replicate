@@ -51,11 +51,24 @@ def create_hacked_forward(module):
 
 class Predictor(BasePredictor):
     def setup(self):
-        print("Loading OmniTry models from downloaded weights...")
+        print("Downloading OmniTry models from HuggingFace directly to the Replicate node...")
+        os.environ['HF_HUB_ENABLE_HF_TRANSFER'] = '1'
+        from huggingface_hub import snapshot_download
+        
         self.device = torch.device('cuda:0')
         self.weight_dtype = torch.bfloat16
         
-        weights_root = "/omnitry/weights/flux"
+        weights_root = "/tmp/omnitry_weights/flux"
+        os.makedirs(weights_root, exist_ok=True)
+        print("Downloading FLUX base model...")
+        snapshot_download(repo_id='camenduru/FLUX.1-Fill-dev-ungated', local_dir=weights_root)
+        
+        lora_dir = "/tmp/omnitry_weights/checkpoints"
+        os.makedirs(lora_dir, exist_ok=True)
+        print("Downloading LoRA weights...")
+        snapshot_download(repo_id='Kunbyte/OmniTry', local_dir=lora_dir)
+        
+        print("Loading OmniTry models into VRAM...")
         
         # Load logic from gradio_demo.py
         print("Initializing FluxTransformer2DModel...")
@@ -86,7 +99,7 @@ class Predictor(BasePredictor):
         self.transformer.add_adapter(lora_config, adapter_name='garment_lora')
 
         print("Loading Safetensors...")
-        lora_path = "/omnitry/weights/checkpoints/omnitry_v1_unified.safetensors"
+        lora_path = "/tmp/omnitry_weights/checkpoints/omnitry_v1_unified.safetensors"
         with safe_open(lora_path, framework="pt") as f:
             lora_weights = {k: f.get_tensor(k) for k in f.keys()}
             self.transformer.load_state_dict(lora_weights, strict=False)
