@@ -51,20 +51,46 @@ def create_hacked_forward(module):
 
 class Predictor(BasePredictor):
     def setup(self):
-        print("Downloading OmniTry models from HuggingFace directly to the Replicate node...")
-        os.environ['HF_HUB_ENABLE_HF_TRANSFER'] = '1'
-        from huggingface_hub import snapshot_download
-        import time
+        print("=== OmniTry Boot Diagnostics ===")
+        import time, urllib.request, socket
         
-        def safe_download(repo_id, local_dir, max_retries=15):
+        # Test 1: Basic connectivity to HuggingFace
+        try:
+            ip = socket.getaddrinfo('huggingface.co', 443)
+            print(f"DNS OK: huggingface.co resolved to {ip[0][4][0]}")
+        except Exception as e:
+            print(f"DNS FAIL: {e}")
+        
+        try:
+            req = urllib.request.Request('https://huggingface.co', headers={'User-Agent': 'Mozilla/5.0'})
+            res = urllib.request.urlopen(req, timeout=10)
+            print(f"HTTP OK: huggingface.co returned {res.status}")
+        except Exception as e:
+            print(f"HTTP FAIL: {e}")
+        
+        # Test 2: Check the specific API endpoint
+        try:
+            req = urllib.request.Request('https://huggingface.co/api/models/camenduru/FLUX.1-Fill-dev-ungated', headers={'User-Agent': 'Mozilla/5.0'})
+            res = urllib.request.urlopen(req, timeout=10)
+            print(f"API OK: camenduru mirror API returned {res.status}")
+        except Exception as e:
+            print(f"API FAIL for camenduru mirror: {e}")
+        
+        print("=== Starting model downloads ===")
+        # NOTE: HF_HUB_ENABLE_HF_TRANSFER is INTENTIONALLY NOT SET
+        # The Rust hf_transfer library is incompatible with Replicate's network stack
+        from huggingface_hub import snapshot_download
+        
+        def safe_download(repo_id, local_dir, max_retries=5):
             for i in range(max_retries):
                 try:
-                    snapshot_download(repo_id=repo_id, local_dir=local_dir, resume_download=True)
+                    snapshot_download(repo_id=repo_id, local_dir=local_dir)
                     return
                 except Exception as e:
-                    print(f"Download {repo_id} failed on attempt {i+1} with error: {e}. Retrying in 5 seconds...")
-                    time.sleep(5)
-            raise RuntimeError(f"Failed to download {repo_id} after {max_retries} attempts. HuggingFace connection keeps dropping.")
+                    print(f"Attempt {i+1} failed: {e}")
+                    if i < max_retries - 1:
+                        time.sleep(10)
+            raise RuntimeError(f"Failed to download {repo_id} after {max_retries} attempts")
             
         self.device = torch.device('cuda:0')
         self.weight_dtype = torch.bfloat16
