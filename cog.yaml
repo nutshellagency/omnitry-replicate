@@ -21,7 +21,8 @@ build:
     # Clone the official OmniTry repository into a safe directory
     - "git clone https://github.com/Kunbyte-AI/OmniTry.git /omnitry"
     
-    # Download weights from HuggingFace inline (since local scripts aren't copied yet)
-    - "python -c \"import os; os.environ['HF_HUB_ENABLE_HF_TRANSFER']='1'; from huggingface_hub import snapshot_download; snapshot_download(repo_id='Kunbyte/OmniTry', local_dir='/omnitry/weights')\""
+    # Download base model and LoRA weights from HuggingFace inline
+    - "python -c \"import os; os.environ['HF_HUB_ENABLE_HF_TRANSFER']='1'; from huggingface_hub import snapshot_download; snapshot_download(repo_id='camenduru/FLUX.1-Fill-dev-ungated', local_dir='/omnitry/weights/flux')\""
+    - "python -c \"import os; os.environ['HF_HUB_ENABLE_HF_TRANSFER']='1'; from huggingface_hub import snapshot_download; snapshot_download(repo_id='Kunbyte/OmniTry', local_dir='/omnitry/weights/checkpoints')\""
 
 predict: "predict.py:Predictor"

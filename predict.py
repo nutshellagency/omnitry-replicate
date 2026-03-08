@@ -55,11 +55,11 @@ class Predictor(BasePredictor):
         self.device = torch.device('cuda:0')
         self.weight_dtype = torch.bfloat16
         
-        weights_root = "/omnitry/weights"
+        weights_root = "/omnitry/weights/flux"
         
         # Load logic from gradio_demo.py
         print("Initializing FluxTransformer2DModel...")
-        self.transformer = FluxTransformer2DModel.from_pretrained(f"{weights_root}/transformer").requires_grad_(False).to(dtype=self.weight_dtype)
+        self.transformer = FluxTransformer2DModel.from_pretrained(f"{weights_root}", subfolder="transformer").requires_grad_(False).to(dtype=self.weight_dtype)
         
         print("Initializing FluxFillPipeline...")
         self.pipeline = FluxFillPipeline.from_pretrained(f"{weights_root}", transformer=self.transformer.eval(), torch_dtype=self.weight_dtype)
@@ -86,7 +86,7 @@ class Predictor(BasePredictor):
         self.transformer.add_adapter(lora_config, adapter_name='garment_lora')
 
         print("Loading Safetensors...")
-        lora_path = f"{weights_root}/checkpoints/omnitry_v1_unified.safetensors"
+        lora_path = "/omnitry/weights/checkpoints/omnitry_v1_unified.safetensors"
         with safe_open(lora_path, framework="pt") as f:
             lora_weights = {k: f.get_tensor(k) for k in f.keys()}
             self.transformer.load_state_dict(lora_weights, strict=False)
