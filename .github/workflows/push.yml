@@ -20,4 +20,7 @@ jobs:
           
       # Build and push the model to Replicate
       - name: Push to Replicate
-        run: cog push r8.im/nutshellagency/omnitry-vton
+        run: |
+          for i in {1..5}; do
+            cog push r8.im/nutshellagency/omnitry-vton && break || echo "Push failed with error $?, retrying in 15 seconds..." && sleep 15
+          done
