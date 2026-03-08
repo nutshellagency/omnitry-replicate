@@ -54,19 +54,30 @@ class Predictor(BasePredictor):
         print("Downloading OmniTry models from HuggingFace directly to the Replicate node...")
         os.environ['HF_HUB_ENABLE_HF_TRANSFER'] = '1'
         from huggingface_hub import snapshot_download
+        import time
         
+        def safe_download(repo_id, local_dir, max_retries=15):
+            for i in range(max_retries):
+                try:
+                    snapshot_download(repo_id=repo_id, local_dir=local_dir, resume_download=True)
+                    return
+                except Exception as e:
+                    print(f"Download {repo_id} failed on attempt {i+1} with error: {e}. Retrying in 5 seconds...")
+                    time.sleep(5)
+            raise RuntimeError(f"Failed to download {repo_id} after {max_retries} attempts. HuggingFace connection keeps dropping.")
+            
         self.device = torch.device('cuda:0')
         self.weight_dtype = torch.bfloat16
         
         weights_root = "/tmp/omnitry_weights/flux"
         os.makedirs(weights_root, exist_ok=True)
         print("Downloading FLUX base model...")
-        snapshot_download(repo_id='camenduru/FLUX.1-Fill-dev-ungated', local_dir=weights_root)
+        safe_download(repo_id='camenduru/FLUX.1-Fill-dev-ungated', local_dir=weights_root)
         
         lora_dir = "/tmp/omnitry_weights/checkpoints"
         os.makedirs(lora_dir, exist_ok=True)
         print("Downloading LoRA weights...")
-        snapshot_download(repo_id='Kunbyte/OmniTry', local_dir=lora_dir)
+        safe_download(repo_id='Kunbyte/OmniTry', local_dir=lora_dir)
         
         print("Loading OmniTry models into VRAM...")
         
